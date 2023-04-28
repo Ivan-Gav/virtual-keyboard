@@ -49,23 +49,23 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f1f3f8;
+  background-color: #d6e0f0;
   color: #393b44;
 }
 
 .key:hover {
-  background-color: #d6e0f0;
-  border-color: #f1f3f8;
+  background-color: #f1f3f8;
+  border-color: #d6e0f0;
   color: #393b44;
   border-radius: 0;
   transition: all 0.3s ease-in;
 }
 
-.key_size_big {
+.key_size_l {
   width: 58px;
 }
 
-.key_size_bigger {
+.key_size_xl {
   width: 100px;
 }
 
@@ -83,6 +83,7 @@ body {
   border-color: #ffffff;
   color: #000;
   border-radius: 0;
+  transition: all 0.3s ease-in;
 }
 
 /* Color palette */
