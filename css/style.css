@@ -15,11 +15,12 @@ body {
   align-items: center;
 }
 
-.output {
+#output {
   width: 700px;
   height: 200px;
   margin: 5px;
   background-color: #ffffff;
+  cursor: text;
 }
 
 .keyboard {
@@ -32,6 +33,7 @@ body {
   padding: 5px;
   border: 2px solid #393b44;
   background-color: #8d93ab;
+  user-select: none;
 }
 
 .key-row {
@@ -53,14 +55,6 @@ body {
   color: #393b44;
 }
 
-.key:hover {
-  background-color: #f1f3f8;
-  border-color: #d6e0f0;
-  color: #393b44;
-  border-radius: 0;
-  transition: all 0.3s ease-in;
-}
-
 .key_size_l {
   width: 58px;
 }
@@ -78,12 +72,21 @@ body {
   color: #f1f3f8;
 }
 
+.key_hover {
+  background-color: #f1f3f8;
+  border-color: #d6e0f0;
+  color: #393b44;
+  border-radius: 0;
+  transition: all 0.3s ease-in;
+  cursor: pointer;
+}
+
 .key_active {
   background-color: #ffffff;
   border-color: #ffffff;
   color: #000;
   border-radius: 0;
-  transition: all 0.3s ease-in;
+  transition: all 0.1s ease-in;
 }
 
 /* Color palette */

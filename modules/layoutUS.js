@@ -134,8 +134,8 @@ export default [
   },
   {
     code: 'Delete',
-    lowerCase: 'Delete',
-    upperCase: 'Delete',
+    lowerCase: 'Del',
+    upperCase: 'Del',
     emphasized: true,
   },
   {
