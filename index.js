@@ -87,10 +87,8 @@ function clickListeners() {
   keyboard.addEventListener('mousedown', (event) => {
     const key = event.target;
     if (key.dataset.code) {
-      // output.focus();
       key.classList.add('key_active');
       display(key.innerText);
-      // console.log(key.innerText);
       key.addEventListener('mouseup', () => {
         key.classList.remove('key_active');
       });
@@ -112,3 +110,20 @@ function blockRealKeyboard() {
 }
 
 blockRealKeyboard();
+
+function realKeyboardListeners(layout) {
+  output.addEventListener('keydown', (event) => {
+    let { code } = event;
+    code = (code === 'MetaRight') ? 'MetaLeft' : code;
+    if (layout.find((keyObj) => keyObj.code === code)) {
+      const key = keyboard.querySelector(`[data-code=${code}]`);
+      key.classList.add('key_active');
+      display(key.innerText);
+      output.addEventListener('keyup', () => {
+        key.classList.remove('key_active');
+      });
+    }
+  });
+}
+
+realKeyboardListeners(layoutUS);
