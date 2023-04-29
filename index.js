@@ -3,6 +3,9 @@ import Key from './modules/key.js';
 
 const body = document.querySelector('body');
 
+let switchUpper = false;
+let layoutCurrent = layoutUS;
+
 // function clearBody() {
 //   body.innerHTML = '<script src="index.js" type="module"></script>';
 // }
@@ -15,7 +18,7 @@ function buildSite() {
   main.insertAdjacentHTML('beforeend', '<h1>RSS Virtual Keyboard</h1>');
   main.insertAdjacentHTML('beforeend', '<textarea name="text" id="output" cols="30" rows="10" autofocus></textarea>');
   main.insertAdjacentHTML('beforeend', '<section class="keyboard"></section>');
-  main.insertAdjacentHTML('beforeend', '<p>OS - Windows. To switch layout use left ctrl + alt</p>');
+  main.insertAdjacentHTML('beforeend', '<p>OS - Windows. To switch layout use left <strong>ctrl + alt</strong></p>');
   return main;
 }
 
@@ -42,13 +45,44 @@ function buildKeyboard(layout) {
   keyboard.append(buildRow(layout, 55, 63));
 }
 
-buildKeyboard(layoutUS);
+function toUpper(layout) {
+  keyboard.querySelectorAll('.key').forEach((element) => {
+    const key = element;
+    const { code } = key.dataset;
+    const keyData = layout.find((keyObj) => keyObj.code === code);
+    if (keyData.upperCase) {
+      key.innerText = keyData.upperCase;
+    } else {
+      key.innerText = keyData.lowerCase.toUpperCase();
+    }
+  });
+}
+
+function toLower(layout) {
+  keyboard.querySelectorAll('.key').forEach((element) => {
+    const key = element;
+    const { code } = key.dataset;
+    const keyData = layout.find((keyObj) => keyObj.code === code);
+    key.innerText = keyData.lowerCase;
+  });
+}
+
+function shift() {
+  switchUpper = !switchUpper;
+  if (switchUpper) {
+    toUpper(layoutCurrent);
+  } else {
+    toLower(layoutCurrent);
+  }
+}
+
+buildKeyboard(layoutCurrent);
 
 function display(symbol) {
   let char = symbol;
   if (symbol === 'Backspace') {
     if ((output.selectionEnd === output.selectionStart)
-    && (output.selectionEnd !== 0)) {
+      && (output.selectionEnd !== 0)) {
       output.selectionStart = output.selectionEnd - 1;
     }
     char = '';
@@ -58,7 +92,7 @@ function display(symbol) {
     }
     char = '';
   } else if (symbol === 'Tab') {
-    char = '    ';
+    char = '\t';
   } else if (symbol === 'Enter') {
     char = '\n';
   } else if ((symbol === 'CapsLock')
@@ -85,16 +119,30 @@ function clickListeners() {
     }
   });
   keyboard.addEventListener('mousedown', (event) => {
-    const key = event.target;
-    if (key.dataset.code) {
+    const { target: key } = event;
+    const { code } = key.dataset;
+
+    function remove() {
+      key.classList.remove('key_active');
+      if ((code === 'ShiftLeft')
+        || (code === 'ShiftRight')) {
+        console.log('Shift up!');
+        shift();
+      }
+      key.removeEventListener('mouseup', remove);
+      key.removeEventListener('mouseout', remove);
+    }
+
+    if (code) {
       key.classList.add('key_active');
       display(key.innerText);
-      key.addEventListener('mouseup', () => {
-        key.classList.remove('key_active');
-      });
-      key.addEventListener('mouseout', () => {
-        key.classList.remove('key_active');
-      });
+      if ((code === 'ShiftLeft')
+        || (code === 'ShiftRight')) {
+        console.log('Shift down!');
+        shift();
+      }
+      key.addEventListener('mouseup', remove);
+      key.addEventListener('mouseout', remove);
     }
   });
 }
@@ -112,18 +160,35 @@ function blockRealKeyboard() {
 blockRealKeyboard();
 
 function realKeyboardListeners(layout) {
-  output.addEventListener('keydown', (event) => {
+  body.addEventListener('keydown', (event) => {
     let { code } = event;
     code = (code === 'MetaRight') ? 'MetaLeft' : code;
-    if (layout.find((keyObj) => keyObj.code === code)) {
+
+    function remove(e) {
+      if (e.code === code) {
+        keyboard.querySelector(`[data-code=${code}]`).classList.remove('key_active');
+        if ((code === 'ShiftLeft')
+        || (code === 'ShiftRight')) {
+          shift();
+        }
+        console.log(`Key up: ${code}`);
+        body.removeEventListener('keyup', remove);
+      }
+    }
+
+    if ((layout.find((keyObj) => keyObj.code === code))
+    && (!event.repeat)) {
       const key = keyboard.querySelector(`[data-code=${code}]`);
       key.classList.add('key_active');
+      if ((code === 'ShiftLeft')
+      || (code === 'ShiftRight')) {
+        shift();
+      }
+      console.log(`Key down: ${code}`);
       display(key.innerText);
-      output.addEventListener('keyup', () => {
-        key.classList.remove('key_active');
-      });
+      body.addEventListener('keyup', remove);
     }
   });
 }
 
-realKeyboardListeners(layoutUS);
+realKeyboardListeners(layoutCurrent);

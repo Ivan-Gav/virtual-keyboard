@@ -23,7 +23,6 @@ class Key {
       key.classList.add('key_emphasized');
     }
     key.innerText = this.lowerCase;
-
     return key;
   }
 }
