@@ -45,49 +45,33 @@ function buildKeyboard(layout) {
 buildKeyboard(layoutUS);
 
 function display(symbol) {
-  let start = output.selectionStart;
-  let end = output.selectionEnd;
-  const { length } = output.textContent;
+  let char = symbol;
   if (symbol === 'Backspace') {
-    if (end !== start) {
-      output.setRangeText('', start, end, 'end');
-    } else if (end === 0) {
-      start = length - 1;
-      end = length;
-      output.setRangeText('', start, end, 'end');
-    } else {
-      start = end - 1;
-      output.setRangeText('', start, end, 'end');
+    if ((output.selectionEnd === output.selectionStart)
+    && (output.selectionEnd !== 0)) {
+      output.selectionStart = output.selectionEnd - 1;
     }
+    char = '';
   } else if (symbol === 'Del') {
-    if (end !== start) {
-      output.setRangeText('', start, end, 'end');
-    } else if (start === 0) {
-      end = 1;
-      output.setRangeText('', start, end, 'end');
-    } else {
-      end = start + 1;
-      output.setRangeText('', start, end, 'end');
+    if (output.selectionEnd === output.selectionStart) {
+      output.selectionEnd = output.selectionStart + 1;
     }
+    char = '';
   } else if (symbol === 'Tab') {
-    output.insertAdjacentText('beforeend', '    ');
+    char = '    ';
   } else if (symbol === 'Enter') {
-    output.insertAdjacentHTML('beforeend', '\n');
+    char = '\n';
   } else if ((symbol === 'CapsLock')
     || (symbol === 'Shift')
     || (symbol === 'Ctrl')
     || (symbol === 'Alt')
     || (symbol === '⊞')) {
-    // do nothing;
+    char = '';
   } else if (symbol === '') {
-    output.insertAdjacentText('beforeend', ' ');
-    start = length;
-    end = length;
-  } else {
-    output.insertAdjacentText('beforeend', symbol);
-    start = length;
-    end = length;
+    char = ' ';
   }
+  output.setRangeText(char, output.selectionStart, output.selectionEnd, 'end');
+  output.focus();
 }
 
 function clickListeners() {
@@ -103,9 +87,10 @@ function clickListeners() {
   keyboard.addEventListener('mousedown', (event) => {
     const key = event.target;
     if (key.dataset.code) {
-      output.focus();
+      // output.focus();
       key.classList.add('key_active');
       display(key.innerText);
+      // console.log(key.innerText);
       key.addEventListener('mouseup', () => {
         key.classList.remove('key_active');
       });
@@ -117,3 +102,13 @@ function clickListeners() {
 }
 
 clickListeners();
+
+function blockRealKeyboard() {
+  ['keydown', 'keyup', 'keypress'].forEach((event) => {
+    output.addEventListener(event, (e) => {
+      e.preventDefault();
+    });
+  });
+}
+
+blockRealKeyboard();
