@@ -7,6 +7,12 @@ const body = document.querySelector('body');
 let switchUpper = false;
 let layoutCurrent = layoutUS;
 
+if (!localStorage.getItem('layoutCurrent')) {
+  localStorage.setItem('layoutCurrent', 'US');
+} else if (localStorage.getItem('layoutCurrent') === 'RU') {
+  layoutCurrent = layoutRU;
+}
+
 // function clearBody() {
 //   body.innerHTML = '<script src="index.js" type="module"></script>';
 // }
@@ -230,8 +236,10 @@ realKeyboardListeners(layoutCurrent);
 function toggleLayout() {
   if (layoutCurrent === layoutUS) {
     layoutCurrent = layoutRU;
+    localStorage.setItem('layoutCurrent', 'RU');
   } else {
     layoutCurrent = layoutUS;
+    localStorage.setItem('layoutCurrent', 'US');
   }
   switchCase();
 }
@@ -241,7 +249,6 @@ function toggleLayoutListener() {
 
   keyboard.addEventListener('key-signal', (event) => {
     pressed.add(event.detail.code);
-    console.log(pressed);
     if (((pressed.has('ShiftLeft')) || (pressed.has('ShiftRight')))
     && ((pressed.has('ControlLeft')) || (pressed.has('ControlRight')))) {
       pressed.clear();
