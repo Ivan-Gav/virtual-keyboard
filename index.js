@@ -1,4 +1,5 @@
 import layoutUS from './modules/layoutUS.js';
+import layoutRU from './modules/layoutRU.js';
 import Key from './modules/key.js';
 
 const body = document.querySelector('body');
@@ -18,7 +19,7 @@ function buildSite() {
   main.insertAdjacentHTML('beforeend', '<h1>RSS Virtual Keyboard</h1>');
   main.insertAdjacentHTML('beforeend', '<textarea name="text" id="output" cols="30" rows="10" autofocus></textarea>');
   main.insertAdjacentHTML('beforeend', '<section class="keyboard"></section>');
-  main.insertAdjacentHTML('beforeend', '<p>OS - Windows. To switch layout use left <strong>ctrl + alt</strong></p>');
+  main.insertAdjacentHTML('beforeend', '<p>OS - Windows. To switch layout use <strong>Ctrl + Shift</strong></p>');
   return main;
 }
 
@@ -67,13 +68,17 @@ function toLower(layout) {
   });
 }
 
-function shift() {
-  switchUpper = !switchUpper;
+function switchCase() {
   if (switchUpper) {
     toUpper(layoutCurrent);
   } else {
     toLower(layoutCurrent);
   }
+}
+
+function shift() {
+  switchUpper = !switchUpper;
+  switchCase();
 }
 
 buildKeyboard(layoutCurrent);
@@ -107,6 +112,7 @@ function display(symbol) {
   output.setRangeText(char, output.selectionStart, output.selectionEnd, 'end');
   output.focus();
 }
+
 // -----------------------------------------------------------
 function clickListeners() {
   keyboard.addEventListener('mouseover', (event) => {
@@ -130,6 +136,9 @@ function clickListeners() {
         || (code === 'ShiftRight')) {
         shift();
       }
+      const unclickedKey = new CustomEvent('leave-key-signal', { detail: { code: `${code}` } });
+      keyboard.dispatchEvent(unclickedKey);
+
       key.removeEventListener('mouseup', remove);
       key.removeEventListener('mouseout', remove);
     }
@@ -141,6 +150,10 @@ function clickListeners() {
         key.classList.add('key_active');
       }
       display(key.innerText);
+
+      const clickedKey = new CustomEvent('key-signal', { detail: { code: `${code}` } });
+      keyboard.dispatchEvent(clickedKey);
+
       if ((code === 'ShiftLeft')
         || (code === 'ShiftRight')
         || (code === 'CapsLock')) {
@@ -152,6 +165,7 @@ function clickListeners() {
   });
 }
 // -----------------------------------------------------------
+
 clickListeners();
 
 function blockRealKeyboard() {
@@ -163,6 +177,7 @@ function blockRealKeyboard() {
 }
 
 blockRealKeyboard();
+
 // -----------------------------------------------------------
 function realKeyboardListeners(layout) {
   body.addEventListener('keydown', (event) => {
@@ -178,6 +193,10 @@ function realKeyboardListeners(layout) {
         || (code === 'ShiftRight')) {
           shift();
         }
+
+        const unpressedKey = new CustomEvent('leave-key-signal', { detail: { code: `${code}` } });
+        keyboard.dispatchEvent(unpressedKey);
+
         body.removeEventListener('keyup', remove);
       }
     }
@@ -195,10 +214,43 @@ function realKeyboardListeners(layout) {
         || (code === 'CapsLock')) {
         shift();
       }
+
+      const pressedKey = new CustomEvent('key-signal', { detail: { code: `${code}` } });
+      keyboard.dispatchEvent(pressedKey);
+
       display(key.innerText);
       body.addEventListener('keyup', remove);
     }
   });
 }
 // ------------------------------------------------------------
+
 realKeyboardListeners(layoutCurrent);
+
+function toggleLayout() {
+  if (layoutCurrent === layoutUS) {
+    layoutCurrent = layoutRU;
+  } else {
+    layoutCurrent = layoutUS;
+  }
+  switchCase();
+}
+
+function toggleLayoutListener() {
+  const pressed = new Set();
+
+  keyboard.addEventListener('key-signal', (event) => {
+    pressed.add(event.detail.code);
+    console.log(pressed);
+    if (((pressed.has('ShiftLeft')) || (pressed.has('ShiftRight')))
+    && ((pressed.has('ControlLeft')) || (pressed.has('ControlRight')))) {
+      pressed.clear();
+      toggleLayout();
+    }
+  });
+  keyboard.addEventListener('leave-key-signal', (event) => {
+    pressed.delete(event.detail.code);
+  });
+}
+
+toggleLayoutListener();
