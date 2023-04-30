@@ -3,7 +3,6 @@ import layoutRU from './modules/layoutRU.js';
 import Key from './modules/key.js';
 
 const body = document.querySelector('body');
-
 let switchUpper = false;
 let layoutCurrent = layoutUS;
 
@@ -13,13 +12,7 @@ if (!localStorage.getItem('layoutCurrent')) {
   layoutCurrent = layoutRU;
 }
 
-// function clearBody() {
-//   body.innerHTML = '<script src="index.js" type="module"></script>';
-// }
-
-// clearBody();
-
-function buildSite() {
+function buildPage() {
   const main = document.createElement('main');
   main.className = 'main';
   main.insertAdjacentHTML('beforeend', '<h1>RSS Virtual Keyboard</h1>');
@@ -29,12 +22,12 @@ function buildSite() {
   return main;
 }
 
-body.prepend(buildSite());
+body.prepend(buildPage());
 
 const keyboard = document.querySelector('.keyboard');
 const output = document.querySelector('#output');
 
-function buildRow(layout, startInd, endInd) {
+function buildKeyRow(layout, startInd, endInd) {
   const row = document.createElement('div');
   row.className = 'key-row';
   for (let i = startInd; i <= endInd; i += 1) {
@@ -45,18 +38,17 @@ function buildRow(layout, startInd, endInd) {
 }
 
 function buildKeyboard(layout) {
-  keyboard.append(buildRow(layout, 0, 13));
-  keyboard.append(buildRow(layout, 14, 28));
-  keyboard.append(buildRow(layout, 29, 41));
-  keyboard.append(buildRow(layout, 42, 54));
-  keyboard.append(buildRow(layout, 55, 63));
+  keyboard.append(buildKeyRow(layout, 0, 13));
+  keyboard.append(buildKeyRow(layout, 14, 28));
+  keyboard.append(buildKeyRow(layout, 29, 41));
+  keyboard.append(buildKeyRow(layout, 42, 54));
+  keyboard.append(buildKeyRow(layout, 55, 63));
 }
 
-function toUpper(layout) {
-  keyboard.querySelectorAll('.key').forEach((element) => {
+function switchToUpperCase(layout) {
+  keyboard.querySelectorAll('.key').forEach((element, i) => {
     const key = element;
-    const { code } = key.dataset;
-    const keyData = layout.find((keyObj) => keyObj.code === code);
+    const keyData = layout[i];
     if (keyData.upperCase) {
       key.innerText = keyData.upperCase;
     } else {
@@ -65,20 +57,18 @@ function toUpper(layout) {
   });
 }
 
-function toLower(layout) {
-  keyboard.querySelectorAll('.key').forEach((element) => {
+function switchToLowerCase(layout) {
+  keyboard.querySelectorAll('.key').forEach((element, i) => {
     const key = element;
-    const { code } = key.dataset;
-    const keyData = layout.find((keyObj) => keyObj.code === code);
-    key.innerText = keyData.lowerCase;
+    key.innerText = layout[i].lowerCase;
   });
 }
 
 function switchCase() {
   if (switchUpper) {
-    toUpper(layoutCurrent);
+    switchToUpperCase(layoutCurrent);
   } else {
-    toLower(layoutCurrent);
+    switchToLowerCase(layoutCurrent);
   }
 }
 
@@ -120,9 +110,10 @@ function display(symbol) {
 }
 
 // -----------------------------------------------------------
-function clickListeners() {
+
+(function handleClicks() {
   keyboard.addEventListener('mouseover', (event) => {
-    const key = event.target;
+    const { target: key } = event;
     if (key.dataset.code) {
       key.classList.add('key_hover');
       key.addEventListener('mouseout', () => {
@@ -169,23 +160,21 @@ function clickListeners() {
       key.addEventListener('mouseout', remove);
     }
   });
-}
+}());
+
 // -----------------------------------------------------------
 
-clickListeners();
-
-function blockRealKeyboard() {
+(function blockRealKeyboard() {
   ['keydown', 'keyup', 'keypress'].forEach((event) => {
     output.addEventListener(event, (e) => {
       e.preventDefault();
     });
   });
-}
-
-blockRealKeyboard();
+}());
 
 // -----------------------------------------------------------
-function realKeyboardListeners(layout) {
+
+function handleKeyPresses(layout) {
   body.addEventListener('keydown', (event) => {
     let { code } = event;
     code = (code === 'MetaRight') ? 'MetaLeft' : code;
@@ -229,9 +218,10 @@ function realKeyboardListeners(layout) {
     }
   });
 }
+
 // ------------------------------------------------------------
 
-realKeyboardListeners(layoutCurrent);
+handleKeyPresses(layoutCurrent);
 
 function toggleLayout() {
   if (layoutCurrent === layoutUS) {
@@ -244,7 +234,7 @@ function toggleLayout() {
   switchCase();
 }
 
-function toggleLayoutListener() {
+(function handleLayoutSwitchCombo() {
   const pressed = new Set();
 
   keyboard.addEventListener('key-signal', (event) => {
@@ -258,6 +248,4 @@ function toggleLayoutListener() {
   keyboard.addEventListener('leave-key-signal', (event) => {
     pressed.delete(event.detail.code);
   });
-}
-
-toggleLayoutListener();
+}());
