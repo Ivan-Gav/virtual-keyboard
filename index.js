@@ -107,7 +107,7 @@ function display(symbol) {
   output.setRangeText(char, output.selectionStart, output.selectionEnd, 'end');
   output.focus();
 }
-
+// -----------------------------------------------------------
 function clickListeners() {
   keyboard.addEventListener('mouseover', (event) => {
     const key = event.target;
@@ -123,10 +123,11 @@ function clickListeners() {
     const { code } = key.dataset;
 
     function remove() {
-      key.classList.remove('key_active');
+      if (code !== 'CapsLock') {
+        key.classList.remove('key_active');
+      }
       if ((code === 'ShiftLeft')
         || (code === 'ShiftRight')) {
-        console.log('Shift up!');
         shift();
       }
       key.removeEventListener('mouseup', remove);
@@ -134,11 +135,15 @@ function clickListeners() {
     }
 
     if (code) {
-      key.classList.add('key_active');
+      if (code === 'CapsLock') {
+        key.classList.toggle('key_active');
+      } else {
+        key.classList.add('key_active');
+      }
       display(key.innerText);
       if ((code === 'ShiftLeft')
-        || (code === 'ShiftRight')) {
-        console.log('Shift down!');
+        || (code === 'ShiftRight')
+        || (code === 'CapsLock')) {
         shift();
       }
       key.addEventListener('mouseup', remove);
@@ -146,7 +151,7 @@ function clickListeners() {
     }
   });
 }
-
+// -----------------------------------------------------------
 clickListeners();
 
 function blockRealKeyboard() {
@@ -158,7 +163,7 @@ function blockRealKeyboard() {
 }
 
 blockRealKeyboard();
-
+// -----------------------------------------------------------
 function realKeyboardListeners(layout) {
   body.addEventListener('keydown', (event) => {
     let { code } = event;
@@ -166,12 +171,13 @@ function realKeyboardListeners(layout) {
 
     function remove(e) {
       if (e.code === code) {
-        keyboard.querySelector(`[data-code=${code}]`).classList.remove('key_active');
+        if (code !== 'CapsLock') {
+          keyboard.querySelector(`[data-code=${code}]`).classList.remove('key_active');
+        }
         if ((code === 'ShiftLeft')
         || (code === 'ShiftRight')) {
           shift();
         }
-        console.log(`Key up: ${code}`);
         body.removeEventListener('keyup', remove);
       }
     }
@@ -179,16 +185,20 @@ function realKeyboardListeners(layout) {
     if ((layout.find((keyObj) => keyObj.code === code))
     && (!event.repeat)) {
       const key = keyboard.querySelector(`[data-code=${code}]`);
-      key.classList.add('key_active');
+      if (code === 'CapsLock') {
+        key.classList.toggle('key_active');
+      } else {
+        key.classList.add('key_active');
+      }
       if ((code === 'ShiftLeft')
-      || (code === 'ShiftRight')) {
+        || (code === 'ShiftRight')
+        || (code === 'CapsLock')) {
         shift();
       }
-      console.log(`Key down: ${code}`);
       display(key.innerText);
       body.addEventListener('keyup', remove);
     }
   });
 }
-
+// ------------------------------------------------------------
 realKeyboardListeners(layoutCurrent);
