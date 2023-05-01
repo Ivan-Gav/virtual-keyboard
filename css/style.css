@@ -1,0 +1,96 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Raleway', sans-serif;
+  background-color: #f1f3f8;
+}
+
+.main {
+  margin: auto;
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#output {
+  width: 700px;
+  height: 200px;
+  margin: 5px;
+  background-color: #ffffff;
+  cursor: text;
+}
+
+.keyboard {
+  width: 700px;
+  height: 240px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px;
+  border: 2px solid #393b44;
+  background-color: #8d93ab;
+  user-select: none;
+}
+
+.key-row {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.key {
+  width: 40px;
+  height: 40px;
+  border: 2px solid #393b44;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #d6e0f0;
+  color: #393b44;
+}
+
+.key_size_l {
+  width: 58px;
+}
+
+.key_size_xl {
+  width: 100px;
+}
+
+.key_size_space {
+  width: 310px;
+}
+
+.key_emphasized {
+  background-color: #393b44;
+  color: #f1f3f8;
+}
+
+.key_hover {
+  background-color: #f1f3f8;
+  border-color: #d6e0f0;
+  color: #393b44;
+  border-radius: 0;
+  transition: all 0.3s ease-in;
+  cursor: pointer;
+}
+
+.key_active {
+  background-color: #ffffff;
+  border-color: #ffffff;
+  color: #000;
+  border-radius: 0;
+  transition: all 0.1s ease-in;
+}
+
+/* Color palette */
+/* #f1f3f8
+#d6e0f0
+#8d93ab
+#393b44 */
